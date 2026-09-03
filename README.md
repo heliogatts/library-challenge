@@ -29,12 +29,28 @@ This is a full-stack Library Management System built with .NET 10 Minimal APIs a
 ## Getting Started
 
 ### Using Docker Compose
-1. Run `docker-compose up --build`
-2. The application will be accessible at:
+1. Initialize local secrets (one-time setup):
+   ```bash
+   ./scripts/init-secrets.sh
+   ```
+2. Start the services:
+   ```bash
+   docker compose up --build
+   ```
+3. The application will be accessible at:
    - Frontend: [http://localhost](http://localhost)
    - Interactive API Docs (Scalar): [http://localhost/scalar/v1](http://localhost/scalar/v1)
    - API Health Check: [http://localhost/health](http://localhost/health)
    - Database: `localhost:5432`
+
+### Default Credentials & Access
+
+| Target | Access / Credentials | Details |
+| :--- | :--- | :--- |
+| **Web UI** | **No login required** | The frontend at [http://localhost](http://localhost) is open out-of-the-box with initial seeded catalog data (6 books, 4 authors, 3 genres). |
+| **Interactive API Docs** | **No authentication required** | Explore and execute endpoints directly at [http://localhost/scalar/v1](http://localhost/scalar/v1). |
+| **PostgreSQL Database** | **Host:** `localhost` / `127.0.0.1`<br>**Port:** `5432`<br>**Database:** `librarydb`<br>**User:** `library`<br>**Password:** See below | To connect via pgAdmin, DBeaver, or psql:<br>• **Docker Compose:** Read from `secrets/db_password.txt` (`cat secrets/db_password.txt`)<br>• **Bare-Metal:** `library_secret` |
+
 
 ### Running Bare-Metal (Locally)
 If you do not wish to run the app using Docker Compose:

@@ -12,8 +12,25 @@ public static class ServiceExtensions
         IConfiguration configuration)
     {
         // Database
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        const string dockerSecretPath = "/run/secrets/db_password";
+        if (File.Exists(dockerSecretPath) && !string.IsNullOrWhiteSpace(connectionString))
+        {
+            var secretPassword = File.ReadAllText(dockerSecretPath).Trim();
+            if (!string.IsNullOrWhiteSpace(secretPassword))
+            {
+                var csb = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
+                if (string.IsNullOrEmpty(csb.Password))
+                {
+                    csb.Password = secretPassword;
+                    connectionString = csb.ConnectionString;
+                }
+            }
+        }
+
         services.AddDbContext<LibraryDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(connectionString));
 
         // FluentValidation — register all validators from this assembly
         services.AddValidatorsFromAssemblyContaining<Program>();

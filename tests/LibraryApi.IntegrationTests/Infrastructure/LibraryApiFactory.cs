@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.PostgreSql;
 using LibraryApi.Data;
 
@@ -20,13 +21,12 @@ public class LibraryApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureAppConfiguration((context, config) =>
+        builder.ConfigureTestServices(services =>
         {
-            var inMemorySettings = new Dictionary<string, string?>
-            {
-                { "ConnectionStrings:DefaultConnection", _dbContainer.GetConnectionString() }
-            };
-            config.AddInMemoryCollection(inMemorySettings);
+            services.RemoveAll<DbContextOptions<LibraryDbContext>>();
+            services.RemoveAll<LibraryDbContext>();
+            services.AddDbContext<LibraryDbContext>(options =>
+                options.UseNpgsql(_dbContainer.GetConnectionString()));
         });
 
         builder.UseEnvironment("Development");
