@@ -1,0 +1,39 @@
+<div class="app-layout">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <span class="brand-icon">📚</span>
+        <div class="brand-text">
+          <span class="brand-title">Library Management</span>
+          <span class="brand-badge">.NET 10 + Angular</span>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <a routerLink="/books" routerLinkActive="active" class="nav-item">
+          📖 Books Catalog
+        </a>
+        <a routerLink="/authors" routerLinkActive="active" class="nav-item">
+          ✍️ Authors
+        </a>
+        <a routerLink="/genres" routerLinkActive="active" class="nav-item">
+          🏷️ Genres
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="/scalar/v1" target="_blank" class="api-docs-btn">
+          ⚡ API Docs (Scalar) ↗
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <div class="content-container">
+      <router-outlet />
+    </div>
+  </main>
+</div>
