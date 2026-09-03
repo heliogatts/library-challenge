@@ -1,0 +1,47 @@
+services:
+  library-db:
+    image: postgres:17-alpine
+    container_name: library-db
+    environment:
+      POSTGRES_USER: library
+      POSTGRES_PASSWORD: library_secret
+      POSTGRES_DB: librarydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - library-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U library -d librarydb"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  library-api:
+    build:
+      context: ./src/LibraryApi
+      dockerfile: Dockerfile
+    container_name: library-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=library-db;Database=librarydb;Username=library;Password=library_secret
+      - Cors__AllowedOrigins__0=http://localhost
+      - Cors__AllowedOrigins__1=http://localhost:80
+    ports:
+      - "5000:5000"
+    depends_on:
+      library-db:
+        condition: service_healthy
+
+  library-web:
+    build:
+      context: ./src/library-web
+      dockerfile: Dockerfile
+    container_name: library-web
+    ports:
+      - "80:80"
+    depends_on:
+      - library-api
+
+volumes:
+  library-data:
+    name: library-challenge-data
