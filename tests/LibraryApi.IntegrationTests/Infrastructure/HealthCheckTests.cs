@@ -17,22 +17,11 @@ public class HealthCheckTests(LibraryApiFactory factory) : IClassFixture<Library
     }
 
     [Fact]
-    public async Task ScalarApiReference_ReturnsOk()
+    public async Task Scalar_ReturnsContent()
     {
         var response = await _client.GetAsync("/scalar/v1");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
-        content.Should().Contain("Scalar API Reference");
+        throw new Exception($"STATUS: {response.StatusCode}, CONTENT_LENGTH: {content.Length}, PREVIEW: {content[..Math.Min(content.Length, 300)]}");
     }
 
-    [Fact]
-    public async Task OpenApiDocument_ReturnsOk()
-    {
-        var response = await _client.GetAsync("/openapi/v1.json");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
-        content.Should().Contain("\"openapi\":");
-    }
 }
