@@ -8,11 +8,12 @@ A full-stack Library Management System built with **.NET 10 Minimal APIs** and *
 > ```bash
 > docker compose up --build
 > ```
-> **Access Points:**
-> - 🌐 **Frontend Web UI**: [http://localhost](http://localhost) (no login required, pre-seeded catalog)
-> - 📖 **Interactive API Docs (Scalar)**: [http://localhost/scalar/v1](http://localhost/scalar/v1)
-> - 📜 **OpenAPI 3.1 Specification**: [http://localhost/openapi/v1.json](http://localhost/openapi/v1.json)
-> - 💓 **Application Health Check**: [http://localhost/health](http://localhost/health)
+> **Access Points & URLs:**
+> - 🌐 **Frontend (Angular Web UI)**: [http://localhost](http://localhost) (Docker, port 80) &bull; *Bare-Metal:* [http://localhost:4200](http://localhost:4200)
+> - ⚙️ **Backend (.NET Minimal API)**: [http://localhost:5000](http://localhost:5000) (direct) &bull; *Via Reverse Proxy:* [http://localhost/api](http://localhost/api)
+> - 📖 **Interactive API Docs (Scalar)**: [http://localhost/scalar/v1](http://localhost/scalar/v1) &bull; *Bare-Metal:* [http://localhost:5000/scalar/v1](http://localhost:5000/scalar/v1)
+> - 📜 **OpenAPI 3.1 Specification**: [http://localhost/openapi/v1.json](http://localhost/openapi/v1.json) &bull; *Bare-Metal:* [http://localhost:5000/openapi/v1.json](http://localhost:5000/openapi/v1.json)
+> - 💓 **Application Health Check**: [http://localhost/health](http://localhost/health) &bull; *Bare-Metal:* [http://localhost:5000/health](http://localhost:5000/health)
 > - 🗄️ **PostgreSQL Database**: `localhost:5432` (`library` / `library_secret`)
 >
 > **Run Automated Integration Tests:**
@@ -99,8 +100,10 @@ library-challenge/
 ## REST API Reference
 
 The interactive documentation and Swagger/OpenAPI specifications are hosted directly by the application:
+- **Backend API Base URL**: [http://localhost:5000](http://localhost:5000) (direct) &bull; Reverse proxy: [http://localhost/api](http://localhost/api)
 - **Interactive UI (Scalar)**: [http://localhost/scalar/v1](http://localhost/scalar/v1) (or `http://localhost:5000/scalar/v1` bare-metal)
 - **OpenAPI 3.1 Spec**: [http://localhost/openapi/v1.json](http://localhost/openapi/v1.json) (or `http://localhost:5000/openapi/v1.json` bare-metal)
+
 
 ### Endpoints Summary
 
@@ -145,7 +148,8 @@ The interactive documentation and Swagger/OpenAPI specifications are hosted dire
    ```
 
 2. **Access points**:
-   - **Frontend Web UI**: [http://localhost](http://localhost)
+   - **Frontend Web UI**: [http://localhost](http://localhost) (port 80)
+   - **Backend REST API**: [http://localhost:5000](http://localhost:5000) (direct) &bull; Reverse proxy: [http://localhost/api](http://localhost/api)
    - **Interactive API Docs (Scalar)**: [http://localhost/scalar/v1](http://localhost/scalar/v1)
    - **API Health Check**: [http://localhost/health](http://localhost/health)
    - **PostgreSQL Database**: `localhost:5432`
@@ -156,10 +160,11 @@ The interactive documentation and Swagger/OpenAPI specifications are hosted dire
 
 ### Default Credentials & Seeded Data
 
-| Target | Access / Credentials | Details |
+| Target | Access / URLs | Details |
 | :--- | :--- | :--- |
-| **Web UI** | **No login required** | Accessible at [http://localhost](http://localhost) with pre-seeded data. |
-| **Interactive API Docs** | **No authentication required** | Explore and execute endpoints at [http://localhost/scalar/v1](http://localhost/scalar/v1). |
+| **Frontend Web UI** | [http://localhost](http://localhost) (Docker, port 80)<br>[http://localhost:4200](http://localhost:4200) (Bare-Metal) | Angular 22 Single-Page Application (no login required, pre-seeded catalog). |
+| **Backend REST API** | [http://localhost:5000](http://localhost:5000) (direct)<br>[http://localhost/api](http://localhost/api) (Docker proxy) | .NET 10 Minimal API endpoints (`/api/books`, `/api/authors`, `/api/genres`). |
+| **Interactive API Docs** | [http://localhost/scalar/v1](http://localhost/scalar/v1)<br>[http://localhost:5000/scalar/v1](http://localhost:5000/scalar/v1) (bare-metal) | Scalar OpenAPI 3.1 interactive UI (no authentication required). |
 | **PostgreSQL Database** | **Host:** `localhost` / `127.0.0.1`<br>**Port:** `5432`<br>**Database:** `librarydb`<br>**User:** `library`<br>**Password:** `library_secret` | Unified password across Docker Compose (`secrets/db_password.txt`) and bare-metal environments. |
 
 #### Seeded Catalog
