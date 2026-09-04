@@ -63,8 +63,10 @@ library-challenge/
 ├── docs/
 │   └── ARCHITECTURE.md            # System context, container diagrams, and ADRs
 ├── scripts/
-│   ├── init-secrets.sh            # Secrets initialization for Linux / macOS
-│   └── init-secrets.ps1           # Secrets initialization for Windows PowerShell
+│   ├── init-secrets.sh            # Optional credential rotation for Linux / macOS
+│   └── init-secrets.ps1           # Optional credential rotation for Windows PowerShell
+├── secrets/
+│   └── db_password.txt            # Pre-seeded development secret for Docker Compose
 ├── src/
 │   ├── LibraryApi/                # .NET 10 Minimal API Backend
 │   │   ├── Data/                  # DbContext, EF Configurations, Migrations, SeedData
@@ -87,6 +89,7 @@ library-challenge/
 │       └── README.md              # Frontend architecture & guide
 ├── tests/
 │   └── LibraryApi.IntegrationTests/ # Integration tests with Testcontainers & WebApplicationFactory
+├── LibraryChallenge.slnx          # Solution file (.NET 10 / Visual Studio)
 ├── docker-compose.yml             # Container orchestration with secrets and resource limits
 └── README.md
 ```
@@ -123,6 +126,16 @@ The interactive documentation and Swagger/OpenAPI specifications are hosted dire
 ---
 
 ## Getting Started
+
+### Prerequisites
+
+- **For Docker Compose (Recommended)**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine 20.10+ with Docker Compose v2.
+- **For Bare-Metal Local Development**:
+  - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+  - [Node.js](https://nodejs.org/) 22+ & npm 10+
+  - Docker daemon (required to run PostgreSQL locally or execute integration tests via Testcontainers)
+
+---
 
 ### Using Docker Compose (Recommended)
 
@@ -177,7 +190,7 @@ If you wish to run the app natively without Docker Compose:
    cd src/LibraryApi
    dotnet run --environment Development
    ```
-   *The API will be available at [http://localhost:5000](http://localhost:5000)*
+   *The API will be available at [http://localhost:5000](http://localhost:5000). Note: Database migrations and seed catalog data are automatically applied on startup (`app.ApplyMigrationsAsync()`).*
 
 3. **Start the Angular Frontend**:
    ```bash
@@ -195,6 +208,10 @@ If you wish to run the app natively without Docker Compose:
 Integration tests run against a real PostgreSQL instance using `Testcontainers.PostgreSql` and `WebApplicationFactory<Program>`:
 
 ```bash
+# Run all tests directly from the repository root
+dotnet test
+
+# Or run from the test project directory
 cd tests/LibraryApi.IntegrationTests
 dotnet test
 ```
