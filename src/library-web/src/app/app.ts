@@ -8,4 +8,9 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {}
+export class App {
+  readonly apiDocsUrl = typeof window !== 'undefined' && window.location.port === '4200'
+    ? 'http://localhost:5000/scalar/v1'
+    : '/scalar/v1';
+}
+

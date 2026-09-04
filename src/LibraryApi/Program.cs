@@ -30,7 +30,11 @@ await app.ApplyMigrationsAsync();
 
 // OpenAPI & API Reference
 app.MapOpenApi();
-app.MapScalarApiReference();
+app.MapScalarApiReference(options =>
+{
+    options.WithOpenApiRoutePattern("/openapi/{documentName}.json");
+});
+
 
 // Health Check
 app.MapHealthChecks("/health");
