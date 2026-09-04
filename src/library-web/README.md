@@ -1,59 +1,132 @@
-# LibraryWeb
+# LibraryWeb — Angular Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.7.
+A modern Single-Page Application (SPA) for the **Library Management System**, built with Angular 22, Standalone Components, and Angular Signals.
 
-## Development server
+---
 
-To start a local development server, run:
+## 1. Overview & Tech Stack
 
-```bash
-ng serve
+- **Framework**: [Angular 22](https://angular.dev/)
+- **State & Reactivity**: Native Angular Signals (`signal()`, `computed()`, `effect()`, `input()`, `output()`)
+- **Architecture**: Standalone Components (no `NgModule` boilerplate)
+- **HTTP Client**: Strongly-typed Angular `HttpClient` with `withFetch()` enabled
+- **Styling**: Pure CSS using CSS custom properties, design tokens, and responsive layout
+- **Test Runner**: [Vitest](https://vitest.dev/)
+- **Production Server**: Nginx Unprivileged (`nginxinc/nginx-unprivileged:alpine`)
+
+---
+
+## 2. Project Structure
+
+```text
+src/app/
+├── components/
+│   ├── book-list/            # Book catalog table with search, filters, pagination, and actions
+│   ├── book-form-modal/      # Modal dialog for creating and updating books
+│   ├── author-list/          # Author management with book counts, search, and inline creation
+│   └── genre-list/           # Genre management with book counts, search, and inline creation
+├── models/
+│   ├── author.model.ts       # Author DTOs and view models
+│   ├── book.model.ts         # Book DTOs, request payloads, and detail models
+│   ├── genre.model.ts        # Genre DTOs and view models
+│   └── paged-response.model.ts # Generic pagination contract matching backend PagedResponse<T>
+├── services/
+│   ├── author.service.ts     # Author CRUD HTTP operations
+│   ├── book.service.ts       # Book catalog query and mutation HTTP operations
+│   └── genre.service.ts      # Genre CRUD HTTP operations
+├── app.config.ts             # Application routing, fetch client, and global error handling
+├── app.routes.ts             # Client-side route declarations (/books, /authors, /genres)
+├── app.html                  # Top-level shell with navigation bar and router outlet
+├── app.ts                    # Root standalone component
+└── app.css                   # Header, navigation, and shell styling
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## 3. Key Features
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Books Catalog (`/books`)**:
+  - Full-text search by title (case-insensitive via ILIKE on backend).
+  - Dynamic filtering by Author and Genre dropdowns.
+  - Multi-column sorting (Title, Year, Author, Genre) in Ascending or Descending order.
+  - Server-side pagination with previous/next controls and total records counter.
+  - Inline action buttons to view details, edit existing books, or delete books.
+- **Book Modal (`BookFormModalComponent`)**:
+  - Reusable modal dialog for both adding new books and editing existing books.
+  - Automatically loads full book details when an ID is supplied.
+  - Real-time client validation (title, ISBN length, published year, author, genre).
+  - Displays RFC 7807 error messages returned by the API (e.g., duplicate ISBN conflicts).
+- **Authors Management (`/authors`)**:
+  - Paginated author list showing the number of books assigned to each author.
+  - Add author form with immediate feedback.
+  - Safe delete handling: displays a 409 Conflict alert if attempting to delete an author with existing books.
+- **Genres Management (`/genres`)**:
+  - Paginated genre list showing the number of books assigned to each genre.
+  - Add genre form with duplicate name validation.
+  - Safe delete handling: displays a 409 Conflict alert if attempting to delete a genre with existing books.
 
+---
+
+## 4. Local Development
+
+### Prerequisites
+- Node.js 22+
+- npm 10+
+- The backend API running on `http://localhost:5000` (see root [README.md](../../README.md))
+
+### Installation
 ```bash
-ng generate component component-name
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+### Start Development Server
 ```bash
-ng generate --help
+npm start
+```
+*or directly with the Angular CLI:*
+```bash
+ng serve --proxy-config proxy.conf.json --port 4200
 ```
 
-## Building
+The application will be accessible at [http://localhost:4200](http://localhost:4200).
 
-To build the project run:
+### Backend Proxy Configuration
+During local development with `ng serve`, API requests are proxied to `http://localhost:5000` via [`proxy.conf.json`](proxy.conf.json):
+- `/api/*` &rarr; `http://localhost:5000/api/*`
+- `/scalar/*` &rarr; `http://localhost:5000/scalar/*`
+- `/openapi/*` &rarr; `http://localhost:5000/openapi/*`
+- `/health` &rarr; `http://localhost:5000/health`
 
+This avoids CORS issues and replicates the Docker Compose Nginx reverse-proxy setup.
+
+---
+
+## 5. Building for Production
+
+To compile the application:
 ```bash
-ng build
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+This compiles the TypeScript and templates into optimized static bundles located in `dist/library-web/browser`.
 
-## Running unit tests
+---
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## 6. Testing
 
+Unit tests are configured with [Vitest](https://vitest.dev/):
 ```bash
-ng test
+npm test
 ```
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+## 7. Containerization
 
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+The production Docker container uses a multi-stage build:
+1. **Build Stage (`node:22-alpine`)**: Restores dependencies via `npm ci` and runs `npm run build -- --configuration production`.
+2. **Runtime Stage (`nginxinc/nginx-unprivileged:alpine`)**: Copies static artifacts to `/usr/share/nginx/html` and applies [`nginx.conf`](nginx.conf) with:
+   - Security headers (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`).
+   - Gzip compression for text, scripts, JSON, and stylesheets.
+   - Long-lived caching headers (`max-age=31536000, immutable`) for hashed assets.
+   - Reverse-proxy directives for `/api/`, `/scalar/`, `/openapi/`, and `/health`.

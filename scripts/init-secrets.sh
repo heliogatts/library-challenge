@@ -10,7 +10,17 @@ chmod 700 "${SECRETS_DIR}"
 
 PASSWORD_FILE="${SECRETS_DIR}/db_password.txt"
 
-if [ ! -f "${PASSWORD_FILE}" ]; then
+FORCE=false
+for arg in "$@"; do
+  case "$arg" in
+    --force|-f)
+      FORCE=true
+      shift
+      ;;
+  esac
+done
+
+if [ "$FORCE" = true ] || [ ! -f "${PASSWORD_FILE}" ]; then
   if command -v openssl >/dev/null 2>&1; then
     openssl rand -hex 24 | tr -d '\n' > "${PASSWORD_FILE}"
   else
@@ -19,5 +29,6 @@ if [ ! -f "${PASSWORD_FILE}" ]; then
   chmod 600 "${PASSWORD_FILE}"
   echo "✔ Successfully generated ${PASSWORD_FILE} with 0600 permissions."
 else
-  echo "✔ Secret file ${PASSWORD_FILE} already exists."
+  echo "✔ Secret file ${PASSWORD_FILE} already exists (use --force to regenerate)."
 fi
+
