@@ -107,6 +107,90 @@ flowchart LR
 
 ---
 
+### 2.4. Entity-Relationship Diagram (Database Constraints)
+Visualizes relational integrity, unique indexes, and foreign key rules (`ON DELETE RESTRICT` preventing orphan cascades).
+
+```mermaid
+erDiagram
+    AUTHOR ||--o{ BOOK : "writes (RESTRICT)"
+    GENRE ||--o{ BOOK : "categorizes (RESTRICT)"
+
+    AUTHOR {
+        uuid Id PK "gen_random_uuid()"
+        varchar_200 Name UK "Unique"
+        timestamp CreatedAt "DEFAULT now()"
+        timestamp UpdatedAt "Nullable"
+    }
+
+    GENRE {
+        uuid Id PK "gen_random_uuid()"
+        varchar_100 Name UK "Unique"
+        timestamp CreatedAt "DEFAULT now()"
+        timestamp UpdatedAt "Nullable"
+    }
+
+    BOOK {
+        uuid Id PK "gen_random_uuid()"
+        varchar_200 Title "Required"
+        varchar_13 ISBN UK "Unique ValueObject (10/13 digits)"
+        int PublishedYear "1450 to Current Year"
+        varchar_2000 Description "Optional"
+        uuid AuthorId FK "References AUTHOR(Id)"
+        uuid GenreId FK "References GENRE(Id)"
+        timestamp CreatedAt "DEFAULT now()"
+        timestamp UpdatedAt "Nullable"
+    }
+```
+
+---
+
+### 2.5. End-to-End Request & Response Sequence Diagram
+Illustrates the full request lifecycle spanning client, reverse proxy, validation filters, domain entities, database persistence, and centralized exception handling.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Librarian as 👤 Librarian / User
+    participant Web as 🌐 Nginx / Angular SPA
+    participant Proxy as 🔀 Nginx Reverse Proxy
+    participant Filter as 🛡️ ValidationFilter (FluentValidation)
+    participant Endpoint as ⚙️ Minimal API Endpoint
+    participant Domain as 🧩 Domain Entity / ValueObject
+    participant DB as 🗄️ PostgreSQL 17 (EF Core)
+    participant ExHandler as ⚠️ GlobalExceptionHandler
+
+    Librarian->>Web: Submit Book Form (or Click Action)
+    Web->>Proxy: POST /api/books (JSON payload)
+    Proxy->>Filter: Forward request to backend:5000
+
+    alt Request validation fails (e.g. malformed ISBN or empty title)
+        Filter-->>Librarian: 400 Bad Request (RFC 7807 ValidationProblem)
+    else Request is valid
+        Filter->>Endpoint: Invoke handler
+        Endpoint->>DB: Check AuthorId & GenreId exist
+        alt Author or Genre not found
+            Endpoint-->>Librarian: 422 Unprocessable Entity ("Invalid Reference")
+        else References valid
+            Endpoint->>Domain: Book.Create(title, Isbn.Create(isbn), ...)
+            alt Domain invariant violated
+                Domain-->>ExHandler: Throws DomainException
+                ExHandler-->>Librarian: 422 Unprocessable Entity (ProblemDetails)
+            else Invariants satisfied
+                Endpoint->>DB: Add entity & SaveChangesAsync()
+                alt Constraint violation (duplicate ISBN or restrictive FK delete)
+                    DB-->>ExHandler: DbUpdateException (Postgres 23503 / 23505)
+                    ExHandler-->>Librarian: 409 Conflict (ProblemDetails)
+                else Saved successfully
+                    DB-->>Endpoint: Commit transaction
+                    Endpoint-->>Librarian: 201 Created (CreateBookResponse)
+                end
+            end
+        end
+    end
+```
+
+---
+
 ## 3. Design Decisions & Practical Reasoning
 
 We favored pragmatic solutions that optimize for developer productivity, operational security, readability, and long-term maintainability without unnecessary complexity.

@@ -48,21 +48,25 @@ src/app/
 - **Books Catalog (`/books`)**:
   - Full-text search by title (case-insensitive via ILIKE on backend).
   - Dynamic filtering by Author and Genre dropdowns.
-  - Multi-column sorting (Title, Year, Author, Genre) in Ascending or Descending order.
+  - Interactive multi-column sorting (Title, Year, Author, Genre) with direction toggles (▲ / ▼).
   - Server-side pagination with previous/next controls and total records counter.
   - Inline action buttons to view details, edit existing books, or delete books.
 - **Book Modal (`BookFormModalComponent`)**:
   - Reusable modal dialog for both adding new books and editing existing books.
   - Automatically loads full book details when an ID is supplied.
-  - Real-time client validation (title, ISBN length, published year, author, genre).
+  - Real-time client validation (title, ISBN formatting with hyphen support up to 17 chars, published year, author, genre).
   - Displays RFC 7807 error messages returned by the API (e.g., duplicate ISBN conflicts).
 - **Authors Management (`/authors`)**:
+  - Live search filtering by author name.
   - Paginated author list showing the number of books assigned to each author.
   - Add author form with immediate feedback.
+  - Inline author editing with instant save and cancel operations.
   - Safe delete handling: displays a 409 Conflict alert if attempting to delete an author with existing books.
 - **Genres Management (`/genres`)**:
+  - Live search filtering by genre name.
   - Paginated genre list showing the number of books assigned to each genre.
   - Add genre form with duplicate name validation.
+  - Inline genre editing with instant save and cancel operations.
   - Safe delete handling: displays a 409 Conflict alert if attempting to delete a genre with existing books.
 
 ---

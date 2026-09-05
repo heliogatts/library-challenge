@@ -25,7 +25,11 @@ public class LibraryDbContext(DbContextOptions<LibraryDbContext> options) : DbCo
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Property("CreatedAt").CurrentValue = DateTime.UtcNow;
+                var createdAtProp = entry.Property("CreatedAt");
+                if (createdAtProp.CurrentValue is DateTime dt && dt == default)
+                {
+                    createdAtProp.CurrentValue = DateTime.UtcNow;
+                }
             }
 
             if (entry.State == EntityState.Modified)

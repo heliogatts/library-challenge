@@ -7,3 +7,7 @@ export interface AuthorItem {
 export interface CreateAuthorRequest {
   name: string;
 }
+
+export interface UpdateAuthorRequest {
+  name: string;
+}

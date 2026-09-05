@@ -7,3 +7,7 @@ export interface GenreItem {
 export interface CreateGenreRequest {
   name: string;
 }
+
+export interface UpdateGenreRequest {
+  name: string;
+}

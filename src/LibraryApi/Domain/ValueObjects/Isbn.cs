@@ -39,6 +39,34 @@ public sealed record Isbn
         return new Isbn(normalized);
     }
 
+    public static bool IsValid(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var normalized = value.Replace("-", "").Replace(" ", "").Trim().ToUpperInvariant();
+
+        if (normalized.Length != 10 && normalized.Length != 13)
+            return false;
+
+        if (normalized.Length == 13 && !normalized.All(char.IsDigit))
+            return false;
+
+        if (normalized.Length == 10)
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                if (!char.IsDigit(normalized[i]))
+                    return false;
+            }
+
+            if (!char.IsDigit(normalized[9]) && normalized[9] != 'X')
+                return false;
+        }
+
+        return true;
+    }
+
     public static implicit operator string(Isbn isbn) => isbn.Value;
 
     public override string ToString() => Value;

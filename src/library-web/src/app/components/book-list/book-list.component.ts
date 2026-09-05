@@ -84,11 +84,19 @@ import { BookFormModalComponent } from '../book-form-modal/book-form-modal.compo
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Title</th>
+                  <th class="sortable" (click)="setSorting('title')">
+                    Title <span class="sort-icon">{{ getSortIcon('title') }}</span>
+                  </th>
                   <th>ISBN</th>
-                  <th>Author</th>
-                  <th>Genre</th>
-                  <th>Year</th>
+                  <th class="sortable" (click)="setSorting('author')">
+                    Author <span class="sort-icon">{{ getSortIcon('author') }}</span>
+                  </th>
+                  <th class="sortable" (click)="setSorting('genre')">
+                    Genre <span class="sort-icon">{{ getSortIcon('genre') }}</span>
+                  </th>
+                  <th class="sortable" (click)="setSorting('year')">
+                    Year <span class="sort-icon">{{ getSortIcon('year') }}</span>
+                  </th>
                   <th class="actions-col">Actions</th>
                 </tr>
               </thead>
@@ -152,17 +160,8 @@ import { BookFormModalComponent } from '../book-form-modal/book-form-modal.compo
     </div>
   `,
   styles: [`
-    .page-container {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
     .toolbar-card {
-      background: #ffffff;
       padding: 1.25rem;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
     .search-filter-row {
       display: flex;
@@ -184,99 +183,13 @@ import { BookFormModalComponent } from '../book-form-modal/book-form-modal.compo
       font-size: 0.875rem;
       pointer-events: none;
     }
-    .form-input {
-      width: 100%;
-      padding: 0.625rem 0.75rem 0.625rem 2.25rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      outline: none;
-      box-sizing: border-box;
-      transition: border-color 0.2s;
-    }
-    .form-input:focus, .form-select:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    .search-box .form-input {
+      padding-left: 2.25rem;
     }
     .filter-group {
       display: flex;
       gap: 0.75rem;
       flex-wrap: wrap;
-    }
-    .form-select {
-      padding: 0.625rem 1rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      background: #ffffff;
-      outline: none;
-      color: #334155;
-      cursor: pointer;
-    }
-    .btn {
-      padding: 0.625rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .btn-sm {
-      padding: 0.375rem 0.875rem;
-      font-size: 0.8125rem;
-    }
-    .btn-primary {
-      background: #2563eb;
-      color: #ffffff;
-    }
-    .btn-primary:hover:not(:disabled) {
-      background: #1d4ed8;
-    }
-    .btn-secondary {
-      background: #f8fafc;
-      color: #334155;
-      border: 1px solid #cbd5e1;
-    }
-    .btn-secondary:hover:not(:disabled) {
-      background: #f1f5f9;
-    }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .table-card {
-      background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-    .table-responsive {
-      width: 100%;
-      overflow-x: auto;
-    }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.875rem;
-    }
-    .data-table th {
-      background: #f8fafc;
-      padding: 0.875rem 1.25rem;
-      color: #64748b;
-      font-weight: 600;
-      border-bottom: 1px solid #e2e8f0;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-    }
-    .data-table td {
-      padding: 1rem 1.25rem;
-      border-bottom: 1px solid #f1f5f9;
-      color: #334155;
     }
     .title-cell {
       color: #0f172a;
@@ -297,31 +210,6 @@ import { BookFormModalComponent } from '../book-form-modal/book-form-modal.compo
       font-size: 0.75rem;
       font-weight: 500;
     }
-    .actions-col {
-      text-align: right;
-    }
-    .btn-action {
-      background: transparent;
-      border: 1px solid transparent;
-      padding: 0.35rem 0.65rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.8125rem;
-      margin-left: 0.35rem;
-      transition: all 0.15s;
-    }
-    .btn-action.edit {
-      color: #2563eb;
-    }
-    .btn-action.edit:hover {
-      background: #eff6ff;
-    }
-    .btn-action.delete {
-      color: #dc2626;
-    }
-    .btn-action.delete:hover {
-      background: #fef2f2;
-    }
     .pagination-footer {
       display: flex;
       justify-content: space-between;
@@ -338,11 +226,6 @@ import { BookFormModalComponent } from '../book-form-modal/book-form-modal.compo
       display: flex;
       gap: 0.5rem;
     }
-    .loading-state, .empty-state {
-      padding: 3rem;
-      text-align: center;
-      color: #64748b;
-    }
     .empty-title {
       font-size: 1.125rem;
       font-weight: 600;
@@ -352,43 +235,6 @@ import { BookFormModalComponent } from '../book-form-modal/book-form-modal.compo
     .empty-desc {
       font-size: 0.875rem;
       color: #64748b;
-    }
-    .spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid #e2e8f0;
-      border-top-color: #2563eb;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 1rem auto;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .alert {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.875rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-    }
-    .alert-success {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      color: #166534;
-    }
-    .alert-error {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #b91c1c;
-    }
-    .btn-close-alert {
-      background: none;
-      border: none;
-      font-size: 1rem;
-      cursor: pointer;
-      color: inherit;
     }
   `]
 })
@@ -404,6 +250,9 @@ export class BookListComponent implements OnInit {
   readonly searchTerm = signal('');
   readonly selectedAuthor = signal('');
   readonly selectedGenre = signal('');
+
+  readonly sortBy = signal<string>('title');
+  readonly sortDirection = signal<'asc' | 'desc'>('asc');
 
   readonly currentPage = signal(1);
   readonly pageSize = signal(10);
@@ -443,7 +292,9 @@ export class BookListComponent implements OnInit {
       pageSize: this.pageSize(),
       searchTerm: this.searchTerm().trim() || undefined,
       authorId: this.selectedAuthor() || undefined,
-      genreId: this.selectedGenre() || undefined
+      genreId: this.selectedGenre() || undefined,
+      sortBy: this.sortBy(),
+      sortDirection: this.sortDirection()
     }).subscribe({
       next: (res) => {
         this.books.set(res.items);
@@ -477,6 +328,22 @@ export class BookListComponent implements OnInit {
     this.selectedGenre.set(genreId);
     this.currentPage.set(1);
     this.loadBooks();
+  }
+
+  setSorting(column: string): void {
+    if (this.sortBy() === column) {
+      this.sortDirection.update((dir) => (dir === 'asc' ? 'desc' : 'asc'));
+    } else {
+      this.sortBy.set(column);
+      this.sortDirection.set('asc');
+    }
+    this.currentPage.set(1);
+    this.loadBooks();
+  }
+
+  getSortIcon(column: string): string {
+    if (this.sortBy() !== column) return '↕';
+    return this.sortDirection() === 'asc' ? '▲' : '▼';
   }
 
   goToPage(page: number): void {

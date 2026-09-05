@@ -14,9 +14,9 @@ A full-stack Library Management System built with **.NET 10 Minimal APIs** and *
 > - 📖 **Interactive API Docs (Scalar)**: [http://localhost/scalar/v1](http://localhost/scalar/v1) &bull; *Bare-Metal:* [http://localhost:5000/scalar/v1](http://localhost:5000/scalar/v1)
 > - 📜 **OpenAPI 3.1 Specification**: [http://localhost/openapi/v1.json](http://localhost/openapi/v1.json) &bull; *Bare-Metal:* [http://localhost:5000/openapi/v1.json](http://localhost:5000/openapi/v1.json)
 > - 💓 **Application Health Check**: [http://localhost/health](http://localhost/health) &bull; *Bare-Metal:* [http://localhost:5000/health](http://localhost:5000/health)
-> - 🗄️ **PostgreSQL Database**: `localhost:5432` (`library` / `library_secret`)
+> - 🗄️ **PostgreSQL Database**: `localhost:5432` (db: `librarydb`, user: `library`, password: `library_secret`)
 >
-> **Run Automated Integration Tests:**
+> **Run Automated Tests (Unit & Integration):**
 > ```bash
 > dotnet test
 > ```
@@ -62,7 +62,7 @@ A full-stack Library Management System built with **.NET 10 Minimal APIs** and *
 ```text
 library-challenge/
 ├── docs/
-│   └── ARCHITECTURE.md            # System context, container diagrams, and ADRs
+│   └── ARCHITECTURE.md            # System context, container diagrams, ERD, and sequence flows
 ├── scripts/
 │   ├── init-secrets.sh            # Optional credential rotation for Linux / macOS
 │   └── init-secrets.ps1           # Optional credential rotation for Windows PowerShell
@@ -71,7 +71,7 @@ library-challenge/
 ├── src/
 │   ├── LibraryApi/                # .NET 10 Minimal API Backend
 │   │   ├── Data/                  # DbContext, EF Configurations, Migrations, SeedData
-│   │   ├── Domain/                # Entity models (Book, Author, Genre)
+│   │   ├── Domain/                # Entity models (Book, Author, Genre, ValueObjects)
 │   │   ├── Features/              # Vertical slices (Authors, Books, Genres)
 │   │   │   ├── Authors/           # CreateAuthor, DeleteAuthor, GetAuthorById, GetAuthors, UpdateAuthor
 │   │   │   ├── Books/             # CreateBook, DeleteBook, GetBookById, GetBooks, UpdateBook
@@ -89,7 +89,8 @@ library-challenge/
 │       ├── proxy.conf.json        # Local dev proxy configuration for ng serve
 │       └── README.md              # Frontend architecture & guide
 ├── tests/
-│   └── LibraryApi.IntegrationTests/ # Integration tests with Testcontainers & WebApplicationFactory
+│   ├── LibraryApi.IntegrationTests/ # Integration tests with Testcontainers & WebApplicationFactory
+│   └── LibraryApi.UnitTests/        # Domain, Validator, & Middleware unit tests
 ├── LibraryChallenge.slnx          # Solution file (.NET 10 / Visual Studio)
 ├── docker-compose.yml             # Container orchestration with secrets and resource limits
 └── README.md

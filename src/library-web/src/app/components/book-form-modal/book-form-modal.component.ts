@@ -51,8 +51,8 @@ import { GenreItem } from '../../models/genre.model';
                   (ngModelChange)="isbn.set($event)"
                   name="isbn"
                   required
-                  maxlength="13"
-                  placeholder="e.g. 9780451524935"
+                  maxlength="17"
+                  placeholder="e.g. 978-0-451-52493-5"
                 />
               </div>
 

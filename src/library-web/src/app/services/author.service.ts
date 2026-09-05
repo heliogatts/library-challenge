@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthorItem, CreateAuthorRequest } from '../models/author.model';
+import { AuthorItem, CreateAuthorRequest, UpdateAuthorRequest } from '../models/author.model';
 import { PagedResponse } from '../models/paged-response.model';
 
 @Injectable({
@@ -26,6 +26,10 @@ export class AuthorService {
 
   createAuthor(request: CreateAuthorRequest): Observable<{ id: string; name: string }> {
     return this.http.post<{ id: string; name: string }>(this.baseUrl, request);
+  }
+
+  updateAuthor(id: string, request: UpdateAuthorRequest): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/${id}`, request);
   }
 
   deleteAuthor(id: string): Observable<void> {

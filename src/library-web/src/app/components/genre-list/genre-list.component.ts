@@ -33,6 +33,19 @@ import { GenreItem } from '../../models/genre.model';
         </form>
       </div>
 
+      <div class="toolbar-card search-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            class="form-input"
+            placeholder="Search genres by name..."
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchChange($event)"
+          />
+        </div>
+      </div>
+
       @if (alertMessage()) {
         <div [class]="'alert alert-' + alertType()">
           <span>{{ alertMessage() }}</span>
@@ -42,7 +55,10 @@ import { GenreItem } from '../../models/genre.model';
 
       <div class="table-card">
         @if (isLoading()) {
-          <div class="loading-state">Loading genres...</div>
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading genres...</p>
+          </div>
         } @else if (genres().length === 0) {
           <div class="empty-state">No genres found.</div>
         } @else {
@@ -57,19 +73,61 @@ import { GenreItem } from '../../models/genre.model';
             <tbody>
               @for (genre of genres(); track genre.id) {
                 <tr>
-                  <td class="font-medium">{{ genre.name }}</td>
-                  <td>
-                    <span class="badge">{{ genre.bookCount }} books</span>
-                  </td>
-                  <td class="actions-col">
-                    <button
-                      class="btn-action delete"
-                      (click)="deleteGenre(genre)"
-                      title="Delete Genre"
-                    >
-                      🗑️ Delete
-                    </button>
-                  </td>
+                  @if (editingGenreId() === genre.id) {
+                    <td>
+                      <input
+                        type="text"
+                        class="form-input edit-input"
+                        [ngModel]="editingGenreName()"
+                        (ngModelChange)="editingGenreName.set($event)"
+                        (keydown.enter)="saveEdit(genre)"
+                        (keydown.escape)="cancelEdit()"
+                        required
+                        maxlength="100"
+                      />
+                    </td>
+                    <td>
+                      <span class="badge">{{ genre.bookCount }} books</span>
+                    </td>
+                    <td class="actions-col">
+                      <button
+                        class="btn-action edit"
+                        (click)="saveEdit(genre)"
+                        [disabled]="isSaving()"
+                        title="Save Changes"
+                      >
+                        💾 Save
+                      </button>
+                      <button
+                        class="btn-action"
+                        (click)="cancelEdit()"
+                        title="Cancel"
+                      >
+                        ✕ Cancel
+                      </button>
+                    </td>
+                  } @else {
+                    <td class="font-medium">{{ genre.name }}</td>
+                    <td>
+                      <span class="badge">{{ genre.bookCount }} books</span>
+                    </td>
+                    <td class="actions-col">
+                      <button
+                        class="btn-action edit"
+                        (click)="startEdit(genre)"
+                        title="Edit Genre"
+                      >
+                        ✏️ Edit
+                      </button>
+                      <button
+                        class="btn-action delete"
+                        (click)="deleteGenre(genre)"
+                        title="Delete Genre"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </td>
+                  }
                 </tr>
               }
             </tbody>
@@ -79,17 +137,8 @@ import { GenreItem } from '../../models/genre.model';
     </div>
   `,
   styles: [`
-    .page-container {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
     .header-card {
-      background: #ffffff;
       padding: 1.25rem 1.5rem;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -111,110 +160,32 @@ import { GenreItem } from '../../models/genre.model';
       display: flex;
       gap: 0.75rem;
     }
-    .form-input {
-      padding: 0.625rem 0.875rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      outline: none;
-      min-width: 240px;
-    }
-    .btn {
-      padding: 0.625rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .btn-primary {
-      background: #2563eb;
-      color: #ffffff;
-    }
-    .btn-primary:hover:not(:disabled) {
-      background: #1d4ed8;
-    }
-    .table-card {
-      background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 0.875rem;
-    }
-    .data-table th {
-      background: #f8fafc;
-      padding: 0.875rem 1.25rem;
-      color: #64748b;
-      font-weight: 600;
-      border-bottom: 1px solid #e2e8f0;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-    }
-    .data-table td {
+    .search-toolbar {
       padding: 1rem 1.25rem;
-      border-bottom: 1px solid #f1f5f9;
-      color: #334155;
     }
-    .badge {
-      background: #f1f5f9;
-      color: #475569;
-      padding: 0.2rem 0.6rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 500;
+    .search-box {
+      position: relative;
+      max-width: 360px;
     }
-    .actions-col {
-      text-align: right;
-    }
-    .btn-action.delete {
-      background: transparent;
-      border: none;
-      color: #dc2626;
-      cursor: pointer;
-      padding: 0.35rem 0.65rem;
-      border-radius: 6px;
-    }
-    .btn-action.delete:hover {
-      background: #fef2f2;
-    }
-    .alert {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.875rem 1.25rem;
-      border-radius: 8px;
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
       font-size: 0.875rem;
+      pointer-events: none;
     }
-    .alert-success {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      color: #166534;
+    .search-box .form-input {
+      width: 100%;
+      padding-left: 2.25rem;
     }
-    .alert-error {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #b91c1c;
+    .font-medium {
+      font-weight: 500;
+      color: #0f172a;
     }
-    .btn-close-alert {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      color: inherit;
-    }
-    .loading-state, .empty-state {
-      padding: 2.5rem;
-      text-align: center;
-      color: #64748b;
+    .edit-input {
+      width: 100%;
+      max-width: 320px;
     }
   `]
 })
@@ -223,8 +194,13 @@ export class GenreListComponent implements OnInit {
 
   readonly genres = signal<GenreItem[]>([]);
   readonly newGenreName = signal('');
+  readonly searchTerm = signal('');
+  readonly editingGenreId = signal<string | null>(null);
+  readonly editingGenreName = signal('');
+
   readonly isLoading = signal(false);
   readonly isSubmitting = signal(false);
+  readonly isSaving = signal(false);
 
   readonly alertMessage = signal<string | null>(null);
   readonly alertType = signal<'success' | 'error'>('success');
@@ -235,7 +211,10 @@ export class GenreListComponent implements OnInit {
 
   loadGenres(): void {
     this.isLoading.set(true);
-    this.genreService.getGenres({ pageSize: 100 }).subscribe({
+    this.genreService.getGenres({
+      pageSize: 100,
+      searchTerm: this.searchTerm().trim() || undefined
+    }).subscribe({
       next: (res) => {
         this.genres.set(res.items);
         this.isLoading.set(false);
@@ -243,6 +222,47 @@ export class GenreListComponent implements OnInit {
       error: (err: any) => {
         this.isLoading.set(false);
         this.showAlert(err.error?.detail ?? 'Failed to load genres.', 'error');
+      }
+    });
+  }
+
+  onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.loadGenres();
+  }
+
+  startEdit(genre: GenreItem): void {
+    this.editingGenreId.set(genre.id);
+    this.editingGenreName.set(genre.name);
+  }
+
+  cancelEdit(): void {
+    this.editingGenreId.set(null);
+    this.editingGenreName.set('');
+  }
+
+  saveEdit(genre: GenreItem): void {
+    const newName = this.editingGenreName().trim();
+    if (!newName) {
+      this.showAlert('Genre name cannot be empty.', 'error');
+      return;
+    }
+    if (newName === genre.name) {
+      this.cancelEdit();
+      return;
+    }
+
+    this.isSaving.set(true);
+    this.genreService.updateGenre(genre.id, { name: newName }).subscribe({
+      next: () => {
+        this.isSaving.set(false);
+        this.cancelEdit();
+        this.showAlert(`Genre updated to "${newName}".`, 'success');
+        this.loadGenres();
+      },
+      error: (err: any) => {
+        this.isSaving.set(false);
+        this.showAlert(err.error?.detail ?? err.error?.title ?? 'Failed to update genre.', 'error');
       }
     });
   }
@@ -292,3 +312,4 @@ export class GenreListComponent implements OnInit {
     }, 4000);
   }
 }
+

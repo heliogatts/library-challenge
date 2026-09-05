@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { GenreItem, CreateGenreRequest } from '../models/genre.model';
+import { GenreItem, CreateGenreRequest, UpdateGenreRequest } from '../models/genre.model';
 import { PagedResponse } from '../models/paged-response.model';
 
 @Injectable({
@@ -26,6 +26,10 @@ export class GenreService {
 
   createGenre(request: CreateGenreRequest): Observable<{ id: string; name: string }> {
     return this.http.post<{ id: string; name: string }>(this.baseUrl, request);
+  }
+
+  updateGenre(id: string, request: UpdateGenreRequest): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/${id}`, request);
   }
 
   deleteGenre(id: string): Observable<void> {

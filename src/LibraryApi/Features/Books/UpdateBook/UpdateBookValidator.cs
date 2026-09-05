@@ -1,4 +1,5 @@
 using FluentValidation;
+using LibraryApi.Domain.ValueObjects;
 
 namespace LibraryApi.Features.Books.UpdateBook;
 
@@ -12,7 +13,8 @@ public class UpdateBookValidator : AbstractValidator<UpdateBookRequest>
 
         RuleFor(x => x.ISBN)
             .NotEmpty().WithMessage("ISBN is required.")
-            .MaximumLength(13).WithMessage("ISBN must not exceed 13 characters.");
+            .MaximumLength(17).WithMessage("ISBN must not exceed 17 characters.")
+            .Must(Isbn.IsValid).WithMessage("ISBN must be a valid 10 or 13 digit ISBN format (hyphens and spaces allowed).");
 
         RuleFor(x => x.PublishedYear)
             .InclusiveBetween(1450, DateTime.UtcNow.Year)
