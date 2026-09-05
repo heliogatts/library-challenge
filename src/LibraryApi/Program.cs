@@ -36,6 +36,9 @@ app.MapScalarApiReference(options =>
 });
 
 
+// Redirect root to interactive Scalar API documentation
+app.MapGet("/", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
+
 // Health Check
 app.MapHealthChecks("/health");
 

@@ -20,8 +20,19 @@ public class HealthCheckTests(LibraryApiFactory factory) : IClassFixture<Library
     public async Task Scalar_ReturnsContent()
     {
         var response = await _client.GetAsync("/scalar/v1");
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
-        throw new Exception($"STATUS: {response.StatusCode}, CONTENT_LENGTH: {content.Length}, PREVIEW: {content[..Math.Min(content.Length, 300)]}");
+        content.Should().Contain("Scalar");
+    }
+
+    [Fact]
+    public async Task Root_RedirectsToScalar()
+    {
+        var client = factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        var response = await client.GetAsync("/");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.Should().Be(new Uri("/scalar/v1", UriKind.Relative));
     }
 
 }
