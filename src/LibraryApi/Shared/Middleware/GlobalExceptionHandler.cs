@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Npgsql;
+using LibraryApi.Domain.Exceptions;
 
 namespace LibraryApi.Shared.Middleware;
 
@@ -36,6 +37,12 @@ public class GlobalExceptionHandler(
     {
         return exception switch
         {
+            DomainException domainEx => (
+                StatusCodes.Status422UnprocessableEntity,
+                "Domain Rule Violation",
+                domainEx.Message
+            ),
+
             Microsoft.EntityFrameworkCore.DbUpdateException
             {
                 InnerException: PostgresException { SqlState: PostgresErrorCodes.ForeignKeyViolation }

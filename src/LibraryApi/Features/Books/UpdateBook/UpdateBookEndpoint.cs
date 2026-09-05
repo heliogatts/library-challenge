@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using LibraryApi.Data;
+using LibraryApi.Domain.ValueObjects;
 using LibraryApi.Shared.Filters;
 
 namespace LibraryApi.Features.Books.UpdateBook;
@@ -43,12 +44,13 @@ public static class UpdateBookEndpoint
                 detail: "The specified Author or Genre does not exist.",
                 statusCode: StatusCodes.Status422UnprocessableEntity);
 
-        book.Title = request.Title.Trim();
-        book.ISBN = request.ISBN.Trim();
-        book.PublishedYear = request.PublishedYear;
-        book.Description = request.Description?.Trim();
-        book.AuthorId = request.AuthorId;
-        book.GenreId = request.GenreId;
+        book.UpdateDetails(
+            request.Title,
+            Isbn.Create(request.ISBN),
+            request.PublishedYear,
+            request.Description,
+            request.AuthorId,
+            request.GenreId);
 
         await db.SaveChangesAsync(ct);
 

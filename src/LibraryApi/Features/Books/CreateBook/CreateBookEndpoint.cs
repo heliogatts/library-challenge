@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using LibraryApi.Data;
 using LibraryApi.Domain;
+using LibraryApi.Domain.ValueObjects;
 using LibraryApi.Shared.Filters;
 
 namespace LibraryApi.Features.Books.CreateBook;
@@ -34,15 +35,13 @@ public static class CreateBookEndpoint
                 detail: "The specified Author or Genre does not exist.",
                 statusCode: StatusCodes.Status422UnprocessableEntity);
 
-        var book = new Book
-        {
-            Title = request.Title.Trim(),
-            ISBN = request.ISBN.Trim(),
-            PublishedYear = request.PublishedYear,
-            Description = request.Description?.Trim(),
-            AuthorId = request.AuthorId,
-            GenreId = request.GenreId
-        };
+        var book = Book.Create(
+            request.Title,
+            Isbn.Create(request.ISBN),
+            request.PublishedYear,
+            request.Description,
+            request.AuthorId,
+            request.GenreId);
 
         db.Books.Add(book);
         await db.SaveChangesAsync(ct);

@@ -33,7 +33,7 @@ public static class UpdateGenreEndpoint
                 detail: $"Genre with ID '{id}' was not found.",
                 statusCode: StatusCodes.Status404NotFound);
 
-        genre.Name = request.Name.Trim();
+        genre.UpdateName(request.Name);
         await db.SaveChangesAsync(ct);
 
         return Results.NoContent();

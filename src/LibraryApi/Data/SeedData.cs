@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using LibraryApi.Domain;
+using LibraryApi.Domain.ValueObjects;
 
 namespace LibraryApi.Data;
 
@@ -16,76 +17,70 @@ public static class SeedData
         logger.LogInformation("Seeding database with initial data...");
 
         // Genres
-        var fiction = new Genre { Id = Guid.Parse("a1b2c3d4-0001-0001-0001-000000000001"), Name = "Fiction" };
-        var sciFi = new Genre { Id = Guid.Parse("a1b2c3d4-0001-0001-0001-000000000002"), Name = "Science Fiction" };
-        var fantasy = new Genre { Id = Guid.Parse("a1b2c3d4-0001-0001-0001-000000000003"), Name = "Fantasy" };
+        var fiction = Genre.Create("Fiction", id: Guid.Parse("a1b2c3d4-0001-0001-0001-000000000001"));
+        var sciFi = Genre.Create("Science Fiction", id: Guid.Parse("a1b2c3d4-0001-0001-0001-000000000002"));
+        var fantasy = Genre.Create("Fantasy", id: Guid.Parse("a1b2c3d4-0001-0001-0001-000000000003"));
 
         db.Genres.AddRange(fiction, sciFi, fantasy);
 
         // Authors
-        var orwell = new Author { Id = Guid.Parse("b1b2c3d4-0002-0002-0002-000000000001"), Name = "George Orwell" };
-        var asimov = new Author { Id = Guid.Parse("b1b2c3d4-0002-0002-0002-000000000002"), Name = "Isaac Asimov" };
-        var tolkien = new Author { Id = Guid.Parse("b1b2c3d4-0002-0002-0002-000000000003"), Name = "J.R.R. Tolkien" };
-        var fitzgerald = new Author { Id = Guid.Parse("b1b2c3d4-0002-0002-0002-000000000004"), Name = "F. Scott Fitzgerald" };
+        var orwell = Author.Create("George Orwell", id: Guid.Parse("b1b2c3d4-0002-0002-0002-000000000001"));
+        var asimov = Author.Create("Isaac Asimov", id: Guid.Parse("b1b2c3d4-0002-0002-0002-000000000002"));
+        var tolkien = Author.Create("J.R.R. Tolkien", id: Guid.Parse("b1b2c3d4-0002-0002-0002-000000000003"));
+        var fitzgerald = Author.Create("F. Scott Fitzgerald", id: Guid.Parse("b1b2c3d4-0002-0002-0002-000000000004"));
 
         db.Authors.AddRange(orwell, asimov, tolkien, fitzgerald);
 
         // Books
         db.Books.AddRange(
-            new Book
-            {
-                Title = "1984",
-                ISBN = "9780451524935",
-                PublishedYear = 1949,
-                Description = "A dystopian novel set in a totalitarian society ruled by Big Brother.",
-                AuthorId = orwell.Id,
-                GenreId = fiction.Id
-            },
-            new Book
-            {
-                Title = "Foundation",
-                ISBN = "9780553293357",
-                PublishedYear = 1951,
-                Description = "The first novel in Isaac Asimov's Foundation series.",
-                AuthorId = asimov.Id,
-                GenreId = sciFi.Id
-            },
-            new Book
-            {
-                Title = "The Hobbit",
-                ISBN = "9780547928227",
-                PublishedYear = 1937,
-                Description = "A fantasy novel about the adventures of Bilbo Baggins.",
-                AuthorId = tolkien.Id,
-                GenreId = fantasy.Id
-            },
-            new Book
-            {
-                Title = "The Great Gatsby",
-                ISBN = "9780743273565",
-                PublishedYear = 1925,
-                Description = "A novel about the mysterious millionaire Jay Gatsby.",
-                AuthorId = fitzgerald.Id,
-                GenreId = fiction.Id
-            },
-            new Book
-            {
-                Title = "I, Robot",
-                ISBN = "9780553382563",
-                PublishedYear = 1950,
-                Description = "A collection of nine science fiction short stories.",
-                AuthorId = asimov.Id,
-                GenreId = sciFi.Id
-            },
-            new Book
-            {
-                Title = "The Lord of the Rings",
-                ISBN = "9780618640157",
-                PublishedYear = 1954,
-                Description = "An epic high-fantasy novel by J.R.R. Tolkien.",
-                AuthorId = tolkien.Id,
-                GenreId = fantasy.Id
-            }
+            Book.Create(
+                "1984",
+                Isbn.Create("9780451524935"),
+                1949,
+                "A dystopian novel set in a totalitarian society ruled by Big Brother.",
+                orwell.Id,
+                fiction.Id
+            ),
+            Book.Create(
+                "Foundation",
+                Isbn.Create("9780553293357"),
+                1951,
+                "The first novel in Isaac Asimov's Foundation series.",
+                asimov.Id,
+                sciFi.Id
+            ),
+            Book.Create(
+                "The Hobbit",
+                Isbn.Create("9780547928227"),
+                1937,
+                "A fantasy novel about the adventures of Bilbo Baggins.",
+                tolkien.Id,
+                fantasy.Id
+            ),
+            Book.Create(
+                "The Great Gatsby",
+                Isbn.Create("9780743273565"),
+                1925,
+                "A novel about the mysterious millionaire Jay Gatsby.",
+                fitzgerald.Id,
+                fiction.Id
+            ),
+            Book.Create(
+                "I, Robot",
+                Isbn.Create("9780553382563"),
+                1950,
+                "A collection of nine science fiction short stories.",
+                asimov.Id,
+                sciFi.Id
+            ),
+            Book.Create(
+                "The Lord of the Rings",
+                Isbn.Create("9780618640157"),
+                1954,
+                "An epic high-fantasy novel by J.R.R. Tolkien.",
+                tolkien.Id,
+                fantasy.Id
+            )
         );
 
         await db.SaveChangesAsync();

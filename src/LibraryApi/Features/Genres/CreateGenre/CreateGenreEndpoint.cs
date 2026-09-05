@@ -23,7 +23,7 @@ public static class CreateGenreEndpoint
         LibraryDbContext db,
         CancellationToken ct)
     {
-        var genre = new Genre { Name = request.Name.Trim() };
+        var genre = Genre.Create(request.Name);
 
         db.Genres.Add(genre);
         await db.SaveChangesAsync(ct);

@@ -33,7 +33,7 @@ public static class UpdateAuthorEndpoint
                 detail: $"Author with ID '{id}' was not found.",
                 statusCode: StatusCodes.Status404NotFound);
 
-        author.Name = request.Name.Trim();
+        author.UpdateName(request.Name);
         await db.SaveChangesAsync(ct);
 
         return Results.NoContent();

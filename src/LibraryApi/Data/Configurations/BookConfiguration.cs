@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using LibraryApi.Domain;
+using LibraryApi.Domain.ValueObjects;
 
 namespace LibraryApi.Data.Configurations;
 
@@ -17,7 +18,10 @@ public class BookConfiguration : IEntityTypeConfiguration<Book>
 
         builder.Property(b => b.ISBN)
             .IsRequired()
-            .HasMaxLength(13);
+            .HasMaxLength(13)
+            .HasConversion(
+                isbn => isbn.Value,
+                value => Isbn.Create(value));
 
         builder.HasIndex(b => b.ISBN).IsUnique();
 

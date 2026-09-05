@@ -23,7 +23,7 @@ public static class CreateAuthorEndpoint
         LibraryDbContext db,
         CancellationToken ct)
     {
-        var author = new Author { Name = request.Name.Trim() };
+        var author = Author.Create(request.Name);
 
         db.Authors.Add(author);
         await db.SaveChangesAsync(ct);

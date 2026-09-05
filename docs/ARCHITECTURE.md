@@ -225,3 +225,15 @@ We favored pragmatic solutions that optimize for developer productivity, operati
             b.Genre.Name))
         .ToListAsync(ct);
     ```
+
+---
+
+### 3.10. Pragmatic Domain-Driven Design (Encapsulated Entities & Value Objects)
+
+- **The Choice**: Transitioning domain entities (`Book`, `Author`, `Genre`) from anemic data holders into encapsulated domain models with private setters, domain factory methods (`Create`), domain mutation methods (`UpdateDetails`, `UpdateName`), and Value Objects (`Isbn`).
+- **Why this is better for us**:
+  - **Invariant Enforcement**: Entities cannot be instantiated or placed into invalid states. Invariants (title length, year ranges, non-empty references) are enforced directly within entity boundaries, preventing invalid states regardless of which endpoint or service interacts with them.
+  - **Domain Value Objects**: Domain concepts such as `Isbn` encapsulate structural validation, normalization (removing whitespace/hyphens), and value equality semantics, mapped cleanly to the database schema using EF Core's `HasConversion()`.
+  - **Exception Mapping**: Business rule violations raise strongly-typed `DomainException` instances, translated into RFC 7807 `422 Unprocessable Entity` responses via `GlobalExceptionHandler`, maintaining a clean separation between HTTP request boundary validation (FluentValidation) and core domain rule enforcement.
+  - **Isolated Unit Testing**: Domain behaviors, state transitions, and Value Objects are verified via fast, zero-dependency unit tests (`LibraryApi.UnitTests`) without requiring database containers or web host bootstrapping.
+
